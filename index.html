@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Classified Employee Cost Calculator — SMMUSD VAPA</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2330;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+    --text: #f0f2f7;
+    --text-secondary: #8b91a4;
+    --text-muted: #545b6e;
+    --teal: #1D9E75;
+    --teal-dim: #0F6E56;
+    --teal-bg: rgba(29,158,117,0.12);
+    --teal-border: rgba(29,158,117,0.3);
+    --purple: #7F77DD;
+    --purple-dim: #534AB7;
+    --purple-bg: rgba(127,119,221,0.12);
+    --purple-border: rgba(127,119,221,0.3);
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .page { max-width: 960px; margin: 0 auto; }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 2rem; padding-bottom: 1.25rem;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .logo-area { display: flex; align-items: center; gap: 12px; }
+  .logo-dot {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--teal-bg); border: 0.5px solid var(--teal-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--teal);
+  }
+  .logo-text { font-size: 15px; font-weight: 500; color: var(--text); }
+  .logo-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+  }
+
+  .card-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .card-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .card-icon.teal { background: var(--teal-bg); color: var(--teal); border: 0.5px solid var(--teal-border); }
+  .card-icon.purple { background: var(--purple-bg); color: var(--purple); border: 0.5px solid var(--purple-border); }
+
+  .card-title { font-size: 15px; font-weight: 500; color: var(--text); }
+  .card-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; letter-spacing: 0.01em; }
+  .field input {
+    width: 100%; background: var(--surface2);
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius); color: var(--text);
+    font-size: 14px; padding: 8px 12px; outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus { border-color: var(--teal); }
+  .field input::placeholder { color: var(--text-muted); }
+
+  .fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .divider { border: none; border-top: 0.5px solid var(--border); margin: 1.25rem 0; }
+
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+
+  .metric {
+    background: var(--surface2); border-radius: var(--radius);
+    padding: 10px 12px;
+  }
+  .metric .mlabel { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; letter-spacing: 0.02em; text-transform: uppercase; }
+  .metric .mval { font-size: 16px; font-weight: 500; color: var(--text); }
+
+  .metric.accent-teal {
+    background: var(--teal-bg); border: 0.5px solid var(--teal-border);
+    grid-column: 1 / -1;
+  }
+  .metric.accent-teal .mlabel { color: var(--teal-dim); }
+  .metric.accent-teal .mval { font-size: 20px; color: var(--teal); }
+
+  .metric.accent-purple {
+    background: var(--purple-bg); border: 0.5px solid var(--purple-border);
+    grid-column: 1 / -1;
+  }
+  .metric.accent-purple .mlabel { color: var(--purple-dim); }
+  .metric.accent-purple .mval { font-size: 20px; color: var(--purple); }
+
+  .hint { font-size: 11px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+
+  .tab-group {
+    display: inline-flex; margin-bottom: 1.1rem;
+    background: #12151f;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px; padding: 4px; gap: 3px;
+  }
+  .tab {
+    padding: 6px 18px; border-radius: 6px; font-size: 12px; cursor: pointer;
+    border: none; background: transparent;
+    color: #6b7280; transition: background 0.15s, color 0.15s; font-weight: 400;
+  }
+  .tab.active {
+    background: #2a2040;
+    border: 1px solid rgba(127,119,221,0.45);
+    color: #a99ff5; font-weight: 500;
+  }
+
+  .r-panel { display: none; }
+  .r-panel.active { display: block; }
+
+  footer {
+    margin-top: 2.5rem; padding-top: 1.25rem;
+    border-top: 0.5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-note { font-size: 12px; color: var(--text-muted); }
+  .reset-btn {
+    font-size: 12px; color: var(--text-secondary);
+    background: none; border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius); padding: 5px 12px; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .reset-btn:hover { color: var(--text); border-color: var(--border); background: var(--surface2); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="logo-area">
+      <div class="logo-dot">$</div>
+      <div>
+        <div class="logo-text">Classified employee cost calculator</div>
+        <div class="logo-sub">SMMUSD — Visual and Performing Arts</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);">Benefits rate: 12.87%</div>
+  </header>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon teal">$</div>
+        <div>
+          <div class="card-title">Cost estimator</div>
+          <div class="card-sub">Calculate true total from inputs</div>
+        </div>
+      </div>
+
+      <div class="fields-row">
+        <div class="field">
+          <label>Teaching weeks</label>
+          <input type="number" id="e-weeks" value="36" min="1" max="52" oninput="calcEstimate()" />
+        </div>
+        <div class="field">
+          <label>Hours per week</label>
+          <input type="number" id="e-hours" value="5" min="0.5" step="0.5" oninput="calcEstimate()" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Hourly rate ($)</label>
+        <input type="number" id="e-rate" placeholder="e.g. 32.50" min="0" step="0.01" oninput="calcEstimate()" />
+      </div>
+
+      <hr class="divider" />
+
+      <div class="result-grid">
+        <div class="metric">
+          <div class="mlabel">Total hours</div>
+          <div class="mval" id="e-out-hours">—</div>
+        </div>
+        <div class="metric">
+          <div class="mlabel">Base pay</div>
+          <div class="mval" id="e-out-base">—</div>
+        </div>
+        <div class="metric">
+          <div class="mlabel">Benefits (12.87%)</div>
+          <div class="mval" id="e-out-ben">—</div>
+        </div>
+        <div class="metric">
+          <div class="mlabel">Weeks × hours</div>
+          <div class="mval" id="e-out-whx">—</div>
+        </div>
+        <div class="metric accent-teal">
+          <div class="mlabel">True total cost</div>
+          <div class="mval" id="e-out-total">Enter a rate above</div>
+        </div>
+      </div>
+      <p class="hint">Total = (weeks × hrs/wk × rate) × 1.1287</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon purple">↩</div>
+        <div>
+          <div class="card-title">Reverse lookup</div>
+          <div class="card-sub">Work backward from a budget</div>
+        </div>
+      </div>
+
+      <div class="tab-group">
+        <button class="tab active" onclick="switchTab('rate', event)">Find rate</button>
+        <button class="tab" onclick="switchTab('hours', event)">Find hours</button>
+      </div>
+
+      <div id="panel-rate" class="r-panel active">
+        <div class="field">
+          <label>True total budget ($)</label>
+          <input type="number" id="r-total" placeholder="e.g. 10000" min="0" step="0.01" oninput="calcRate()" />
+        </div>
+        <div class="fields-row">
+          <div class="field">
+            <label>Teaching weeks</label>
+            <input type="number" id="r-weeks" value="36" min="1" max="52" oninput="calcRate()" />
+          </div>
+          <div class="field">
+            <label>Hours per week</label>
+            <input type="number" id="r-hours" value="5" min="0.5" step="0.5" oninput="calcRate()" />
+          </div>
+        </div>
+        <hr class="divider" />
+        <div class="result-grid">
+          <div class="metric">
+            <div class="mlabel">Total hours</div>
+            <div class="mval" id="r-out-hours">—</div>
+          </div>
+          <div class="metric">
+            <div class="mlabel">Base pay</div>
+            <div class="mval" id="r-out-base">—</div>
+          </div>
+          <div class="metric accent-purple">
+            <div class="mlabel">Max hourly rate</div>
+            <div class="mval" id="r-out-rate">Enter a budget above</div>
+          </div>
+        </div>
+        <p class="hint">Rate = budget ÷ (total hours × 1.1287)</p>
+      </div>
+
+      <div id="panel-hours" class="r-panel">
+        <div class="field">
+          <label>True total budget ($)</label>
+          <input type="number" id="h-total" placeholder="e.g. 10000" min="0" step="0.01" oninput="calcHours()" />
+        </div>
+        <div class="fields-row">
+          <div class="field">
+            <label>Hourly rate ($)</label>
+            <input type="number" id="h-rate" placeholder="e.g. 32.50" min="0" step="0.01" oninput="calcHours()" />
+          </div>
+          <div class="field">
+            <label>Weeks (optional)</label>
+            <input type="number" id="h-weeks" placeholder="e.g. 36" min="1" max="52" oninput="calcHours()" />
+          </div>
+        </div>
+        <hr class="divider" />
+        <div class="result-grid">
+          <div class="metric accent-purple">
+            <div class="mlabel">Max total hours</div>
+            <div class="mval" id="h-out-hours">Enter values above</div>
+          </div>
+          <div class="metric" id="h-hpw-card" style="display:none; grid-column:unset;">
+            <div class="mlabel">Hours per week</div>
+            <div class="mval" id="h-out-hpw">—</div>
+          </div>
+          <div class="metric">
+            <div class="mlabel">Base pay</div>
+            <div class="mval" id="h-out-base">—</div>
+          </div>
+          <div class="metric">
+            <div class="mlabel">Benefits</div>
+            <div class="mval" id="h-out-ben">—</div>
+          </div>
+        </div>
+        <p class="hint">Hours = budget ÷ (rate × 1.1287)</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-note">SMMUSD VAPA · Prop 28 / Measure R staffing tool · Benefits rate 12.87%</div>
+    <button class="reset-btn" onclick="resetAll()">Reset all</button>
+  </footer>
+
+</div>
+
+<script>
+const fmt = n => '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtH = n => { const r = Math.round(n * 10) / 10; return r % 1 === 0 ? r.toString() : r.toFixed(1); };
+const BENEFITS = 1.1287;
+
+function calcEstimate() {
+  const weeks = parseFloat(document.getElementById('e-weeks').value) || 0;
+  const hours = parseFloat(document.getElementById('e-hours').value) || 0;
+  const rate  = parseFloat(document.getElementById('e-rate').value);
+  const totalHours = weeks * hours;
+  document.getElementById('e-out-hours').textContent = fmtH(totalHours);
+  document.getElementById('e-out-whx').textContent = fmtH(weeks) + ' × ' + fmtH(hours);
+  if (!rate || isNaN(rate) || rate <= 0) {
+    document.getElementById('e-out-base').textContent = '—';
+    document.getElementById('e-out-ben').textContent = '—';
+    document.getElementById('e-out-total').textContent = 'Enter a rate above';
+    return;
+  }
+  const base = totalHours * rate;
+  const ben = base * 0.1287;
+  document.getElementById('e-out-base').textContent = fmt(base);
+  document.getElementById('e-out-ben').textContent = fmt(ben);
+  document.getElementById('e-out-total').textContent = fmt(base + ben);
+}
+
+function calcRate() {
+  const total = parseFloat(document.getElementById('r-total').value);
+  const weeks = parseFloat(document.getElementById('r-weeks').value) || 0;
+  const hours = parseFloat(document.getElementById('r-hours').value) || 0;
+  const totalHours = weeks * hours;
+  document.getElementById('r-out-hours').textContent = fmtH(totalHours);
+  if (!total || !totalHours) {
+    document.getElementById('r-out-base').textContent = '—';
+    document.getElementById('r-out-rate').textContent = 'Enter a budget above';
+    return;
+  }
+  const base = total / BENEFITS;
+  document.getElementById('r-out-base').textContent = fmt(base);
+  document.getElementById('r-out-rate').textContent = fmt(base / totalHours) + ' / hr';
+}
+
+function calcHours() {
+  const total = parseFloat(document.getElementById('h-total').value);
+  const rate  = parseFloat(document.getElementById('h-rate').value);
+  const weeks = parseFloat(document.getElementById('h-weeks').value);
+  if (!total || !rate) {
+    document.getElementById('h-out-hours').textContent = 'Enter values above';
+    document.getElementById('h-out-base').textContent = '—';
+    document.getElementById('h-out-ben').textContent = '—';
+    document.getElementById('h-hpw-card').style.display = 'none';
+    return;
+  }
+  const base = total / BENEFITS;
+  const totalHours = base / rate;
+  document.getElementById('h-out-hours').textContent = fmtH(totalHours) + ' hrs';
+  document.getElementById('h-out-base').textContent = fmt(base);
+  document.getElementById('h-out-ben').textContent = fmt(total - base);
+  if (weeks && weeks > 0) {
+    document.getElementById('h-out-hpw').textContent = fmtH(totalHours / weeks) + ' hrs/wk';
+    document.getElementById('h-hpw-card').style.display = 'block';
+  } else {
+    document.getElementById('h-hpw-card').style.display = 'none';
+  }
+}
+
+function switchTab(tab, e) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  e.target.classList.add('active');
+  document.querySelectorAll('.r-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function resetAll() {
+  ['e-weeks','r-weeks'].forEach(id => document.getElementById(id).value = '36');
+  ['e-hours','r-hours'].forEach(id => document.getElementById(id).value = '5');
+  ['e-rate','r-total','h-total','h-rate','h-weeks'].forEach(id => document.getElementById(id).value = '');
+  calcEstimate(); calcRate(); calcHours();
+}
+
+calcEstimate(); calcRate();
+</script>
+</body>
+</html>
