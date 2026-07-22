@@ -344,7 +344,10 @@
   </div>
 
   <footer>
-    <div class="footer-note">SMMUSD VAPA · AMS / Measure R staffing tool · Benefits rate: <span id="footer-rate">12.87% — Non-Salaried / Hourly / Part Time</span></div>
+    <div class="footer-note">
+      <div>SMMUSD VAPA · AMS / Measure R staffing tool · Benefits rate: <span id="footer-rate">12.87% — Non-Salaried / Hourly / Part Time</span></div>
+      <div style="margin-top:4px;">© 2026 maestrowang</div>
+    </div>
     <button class="reset-btn" onclick="resetAll()">Reset all</button>
   </footer>
 
@@ -361,10 +364,10 @@ let BLABEL = '12.87%';
 
 function setBenefits(mode) {
   if (mode === 'pers') {
-    BRATE = 0.3968; BMULT = 1.3968; BLABEL = '39.68%';
+    BRATE = 0.3928; BMULT = 1.3928; BLABEL = '39.28%';
     document.getElementById('btn-pers').classList.add('active');
     document.getElementById('btn-hourly').classList.remove('active');
-    document.getElementById('footer-rate').textContent = '39.68% — Full Time Salaried (PERS)';
+    document.getElementById('footer-rate').textContent = '39.28% — Full Time Salaried (PERS)';
   } else {
     BRATE = 0.1287; BMULT = 1.1287; BLABEL = '12.87%';
     document.getElementById('btn-hourly').classList.add('active');
